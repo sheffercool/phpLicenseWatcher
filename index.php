@@ -6,11 +6,11 @@ require_once("HTML/Table.php");
 
 $tableStyle = "class='table' ";
 
-# Create a new table object
+// Create a new table object
 $table = new HTML_Table($tableStyle);
 //$table->setColAttributes(1,"align=\"center\"");
 
-# Define a table header
+// Define a table header
 $headerStyle = "";
 $colHeaders = array("License port@server","Description", "Status", "Current Usage", "Available features/license","Master",  "lmgrd version");
 $table->addRow($colHeaders, $headerStyle, "TH");
@@ -23,18 +23,19 @@ for ($i = 0 ; $i < sizeof($servers) ; $i++) {
 
 	foreach(explode(PHP_EOL, $data) as $line) {
 		// Look for an expression like this ie. kalahari: license server UP (MASTER) v6.1
-		if (preg_match ("/: license server UP \(MASTER\)/i", $line)) {
+        // preg_match() explicity returns int 1 on success.
+        switch (1) {
+        case preg_match ("/: license server UP \(MASTER\)/i", $line):
 			$status_string = "UP";
 			$class = "up";
 			$lmgrdversion = preg_replace("/.*license server UP \(MASTER\)/i ", "", $line);
-			$lmmaster = substr($line,0,strpos($line,':',0));
-		} else {
-            if (preg_match ("/: license server UP/i", $line)) {
-                $status_string = "UP";
-                $class = "up";
-                $lmgrdversion = preg_replace("/.*license server UP/i ", "", $line);
-                $lmmaster = substr($line, 0, strpos($line, ':', 0));
-            }
+			$lmmaster = substr($line, 0, strpos($line, ':', 0));
+            break;
+        case preg_match ("/: license server UP/i", $line):
+            $status_string = "UP";
+            $class = "up";
+            $lmgrdversion = preg_replace("/.*license server UP/i ", "", $line);
+            $lmmaster = substr($line, 0, strpos($line, ':', 0));
         }
 
         switch(1) {
@@ -47,7 +48,7 @@ for ($i = 0 ; $i < sizeof($servers) ; $i++) {
             $lmmaster = "";
             $detaillink="No details";
             $listingexpirationlink = "";
-            break;
+            break 2;
         // Checking if vendor daemon has died even if lmgrd is still running
         case preg_match("/vendor daemon is down/i", $line, $out):
             $status_string = "VENDOR DOWN";
@@ -55,10 +56,11 @@ for ($i = 0 ; $i < sizeof($servers) ; $i++) {
             $lmgrdversion = preg_replace(".*license server UP \(MASTER\) /i", "", $line);
             $lmmaster = substr($line,0,strpos($line,':',0));
             preg_replace(".*license server UP /i", "", $line);
-            break;
+            break 2;
+        }
+
         // If I don't get explicit reason that the server is UP set the status to DOWN
-        default:
-        // if ($status_string === "")
+        if ($status_string === "") {
             $status_string = "DOWN";
             $class = "down";
             $lmgrdversion = "";
@@ -66,24 +68,21 @@ for ($i = 0 ; $i < sizeof($servers) ; $i++) {
             $detaillink = "No details";
             $listingexpirationlink = "";
         }
-
-        $table->AddRow(array(
-            $servers[$i],
-            $description[$i],
-            $status_string,
-            $detaillink,
-            $listingexpirationlink,
-            $lmmaster,
-            $lmgrdversion
-        ));
-
-    	// Set the background color of status cell
-    	$table->updateCellAttributes( ($table->getRowCount() - 1) , 2, "class='{$class}'");
-    	//$table->updateCellAttributes( 1 , 0, "");
-
-    	// Close the pipe
-    	//pclose($fp);
     }
+
+    $table->AddRow(array(
+        $servers[$i],
+        $description[$i],
+        $status_string,
+        $detaillink,
+        $listingexpirationlink,
+        $lmmaster,
+        $lmgrdversion
+    ));
+
+	// Set the background color of status cell
+	$table->updateCellAttributes(($table->getRowCount() - 1) , 2, "class='{$class}'");
+	//$table->updateCellAttributes( 1 , 0, "");
 }
 
 print_header();

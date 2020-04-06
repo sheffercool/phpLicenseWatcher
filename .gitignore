@@ -64,3 +64,12 @@ nbdist/
 /vendor/
 composer.lock
 !composer.json
+
+# Config file
+config.php
+!config/config.php
+!vagrant_provision/config/config.php
+
+# SQL files
+*.sql
+!phplicensewatcher.sql
