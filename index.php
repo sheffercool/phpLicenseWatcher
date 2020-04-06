@@ -58,16 +58,16 @@ for ($i = 0 ; $i < sizeof($servers) ; $i++) {
             preg_replace(".*license server UP /i", "", $line);
             break 2;
         }
+    }
 
-        // If I don't get explicit reason that the server is UP set the status to DOWN
-        if ($status_string === "") {
-            $status_string = "DOWN";
-            $class = "down";
-            $lmgrdversion = "";
-            $lmmaster = "";
-            $detaillink = "No details";
-            $listingexpirationlink = "";
-        }
+    // If I don't get explicit reason that the server is UP set the status to DOWN
+    if ($status_string === "") {
+        $status_string = "DOWN";
+        $class = "down";
+        $lmgrdversion = "";
+        $lmmaster = "";
+        $detaillink = "No details";
+        $listingexpirationlink = "";
     }
 
     $table->AddRow(array(
@@ -85,11 +85,11 @@ for ($i = 0 ; $i < sizeof($servers) ; $i++) {
 	//$table->updateCellAttributes( 1 , 0, "");
 }
 
+// Output view.
 print_header();
 print <<< HTML
-<link rel="top" href="index.php"/>
 <h1>License Server Status</h1>
-<hr/>
+<hr />
 <h2>Flexlm Servers</h2>
 <p>To get current usage for an individual server please click on the "Details" link next to the server. If you would like to get current usage for multiple servers on the same page use checkbox on the right of the server then click on the "Get current usage for multiple servers on one page".</p>
 HTML;
