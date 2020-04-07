@@ -74,13 +74,14 @@ function compare_dates ($date1, $date2) {
     $unixdate1 = strtotime($date1);
     $unixdate2 = strtotime($date2);
 
-    if ($unixdate1 > $unixdate2) {
-        return 1;
-    } elseif ($unixdate1 < $unxidate2) {
-        return -1;
-    } elseif ($unixdate1 === $unxidate2) {
-        return 0;
-    }
+    return ($unixdate1 <=> $unixdate2);
+    // if ($unixdate1 > $unixdate2) {
+    //     return 1;
+    // } elseif ($unixdate1 < $unxidate2) {
+    //     return -1;
+    // } elseif ($unixdate1 === $unxidate2) {
+    //     return 0;
+    // }
 }
 
 /**
