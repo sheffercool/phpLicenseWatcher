@@ -53,14 +53,13 @@ $test_names[]   = "<code>lmutil</code>";
 $test_values[]  = $test ? "Is Executable" : "Not Executable (maybe check permissions?)";
 $test_results[] = $test ? PASS_MARK : FAIL_MARK;
 
-$test = (bool) function() {
-    if (isset($db_hostname) && isset($db_username) && isset($db_password)) {
-    	$db = DB::connect($dsn, true);
-        return !DB::isError($db);
-    }
-
-    return false;
-};
+// Determine database connectivity.  $db_* vars are defined in config.php.
+if (isset($db_hostname) && isset($db_username) && isset($db_password)) {
+    $db = DB::connect($dsn, true);
+    $test = !DB::isError($db);
+} else {
+    $test = false;
+}
 $test_names[]   = "Database Connectivity";
 $test_values[]  = $test ? "Connection OK" : "Connection Failed.";
 $test_results[] = $test ? PASS_MARK : FAIL_MARK;
