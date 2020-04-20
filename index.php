@@ -12,7 +12,7 @@ $table = new HTML_Table($tableStyle);
 
 // Define a table header
 $headerStyle = "";
-$colHeaders = array("License port@server","Description", "Status", "Current Usage", "Available features/license","Master",  "lmgrd version");
+$colHeaders = array("License port@server", "Description", "Status", "Current Usage", "Available features/license", "lmgrd version");
 $table->addRow($colHeaders, $headerStyle, "TH");
 
 for ($i = 0 ; $i < sizeof($servers) ; $i++) {
@@ -29,13 +29,11 @@ for ($i = 0 ; $i < sizeof($servers) ; $i++) {
 			$status_string = "UP";
 			$class = "up";
 			$lmgrdversion = preg_replace("/.*license server UP \(MASTER\)/i ", "", $line);
-			$lmmaster = substr($line, 0, strpos($line, ':', 0));
             break;
         case preg_match ("/: license server UP/i", $line):
             $status_string = "UP";
             $class = "up";
             $lmgrdversion = preg_replace("/.*license server UP/i ", "", $line);
-            $lmmaster = substr($line, 0, strpos($line, ':', 0));
         }
 
         switch(1) {
@@ -45,7 +43,6 @@ for ($i = 0 ; $i < sizeof($servers) ; $i++) {
             $status_string = "DOWN";
             $class = "down";
             $lmgrdversion = "";
-            $lmmaster = "";
             $detaillink="No details";
             $listingexpirationlink = "";
             break 2;
@@ -54,7 +51,6 @@ for ($i = 0 ; $i < sizeof($servers) ; $i++) {
             $status_string = "VENDOR DOWN";
             $class = "warning";
             $lmgrdversion = preg_replace(".*license server UP \(MASTER\) /i", "", $line);
-            $lmmaster = substr($line,0,strpos($line,':',0));
             preg_replace(".*license server UP /i", "", $line);
             break 2;
         }
@@ -65,7 +61,6 @@ for ($i = 0 ; $i < sizeof($servers) ; $i++) {
         $status_string = "DOWN";
         $class = "down";
         $lmgrdversion = "";
-        $lmmaster = "";
         $detaillink = "No details";
         $listingexpirationlink = "";
     }
@@ -76,7 +71,6 @@ for ($i = 0 ; $i < sizeof($servers) ; $i++) {
         $status_string,
         $detaillink,
         $listingexpirationlink,
-        $lmmaster,
         $lmgrdversion
     ));
 
