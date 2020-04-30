@@ -49,6 +49,7 @@ JOIN `licenses` ON `events`.`license_id`=`licenses`.`id`
 JOIN `features` ON `licenses`.`feature_id`=`features`.`id`
 WHERE `events`.`type`='OUT'
 GROUP BY `events`.`time`, `events`.`user`
+
 SQL;
 
 switch ($_GET['sortby']) {
@@ -61,9 +62,6 @@ case "user":
 default:
     $sql .= "ORDER BY MAX(`features`.`name`), `events`.`time`, `events`.`user` DESC;";
 }
-
-if (isset($debug) && $debug == true)
-    print_sql($sql);
 
 $recordset = $db->query($sql);
 
@@ -110,6 +108,9 @@ print <<< HTML
 </p>
 </form>
 HTML;
+
+if (isset($debug) && $debug == true)
+    print_sql($sql);
 
 $table->display();
 print_footer();
