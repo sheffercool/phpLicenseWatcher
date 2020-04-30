@@ -11,9 +11,11 @@ if (DB::isError($db)) {
 }
 
 $sql = <<<SQL
-SELECT DISTINCT `feature`
-FROM `events`
-WHERE `type`='OUT';
+SELECT DISTINCT `name`
+FROM `features`
+JOIN `licenses` ON `features`.`id`=`licenses`.`feature_id`
+JOIN `events` ON `licenses`.`id`=`events`.`license_id`
+WHERE `events`.`type`='OUT';
 SQL;
 
 $recordset = $db->query($sql);
@@ -29,27 +31,35 @@ for ($i = 0; $row = $recordset->fetchRow(); $i++) {
     $features_color[$row[0]] = $color[$i];
 }
 
-// $i = 0;
-// while ($row = $recordset->fetchRow()) {
-//     $features_color["$row[0]"] = $color[$i];
-//     $i++;
-// }
+// Check what we want to sort data on
 
-$sql = <<<SQL
-SELECT `date`, `user`, MAX(`feature`), count(*)
+/* Original queries would error out with MySQL when sql_mode=only_full_group_by
+ * Additional debugging may be necessary.  Original queries are as follows:
+ * Sort by date:
+ * SELECT `flmevent_date`,`flmevent_user`,MAX(`flmevent_feature`),count(*) FROM `flexlm_events` WHERE `flmevent_type`='OUT' GROUP BY `flmevent_date`,`flmevent_user` ORDER BY `flmevent_date`,`flmevent_user`,`flmevent_feature` DESC;
+ * Sort by user:
+ * SELECT `flmevent_date`,`flmevent_user`,MAX(`flmevent_feature`),count(*) FROM `flexlm_events` WHERE `flmevent_type`='OUT' GROUP BY `flmevent_user`,`flmevent_date` ORDER BY `flmevent_user`,`flmevent_date`,`flmevent_feature` DESC;
+ * Sort by feature:
+ * SELECT `flmevent_date`,MAX(flmevent_user),`flmevent_feature`,count(*) FROM `flexlm_events` WHERE `flmevent_type`='OUT' GROUP BY `flmevent_feature`,`flmevent_date` ORDER BY `flmevent_feature`,`flmevent_date`,`flmevent_user` DESC;
+ */
+ $sql = <<<SQL
+SELECT `events`.`time`, `events`.`user`, MAX(`features`.`name`), count(*)
 FROM `events`
-WHERE `type`='OUT'
-GROUP BY `date`, `user`
-
+JOIN `licenses` ON `events`.`license_id`=`licenses`.`id`
+JOIN `features` ON `licenses`.`feature_id`=`features`.`id`
+WHERE `events`.`type`='OUT'
+GROUP BY `events`.`time`, `events`.`user`
 SQL;
 
-//Check what we want to sort data on
-if ($_GET['sortby'] == "date") {
-	$sql .= "ORDER BY `date`, `user`, `feature` DESC;";
-} else if ($_GET['sortby'] == "user" ) {
-	$sql .= "ORDER BY `user`, `date`, `feature` DESC;";
-} else {
-	$sql .= "ORDER BY `feature`, `date`, `user` DESC;";
+switch ($_GET['sortby']) {
+case "date":
+    $sql .= "ORDER BY `events`.`time`, `events`.`user`, MAX(`features`.`name`) DESC;";
+    break;
+case "user":
+    $sql .= "ORDER BY `events`.`user`, `events`.`time`, MAX(`features`.`name`) DESC;";
+    break;
+default:
+    $sql .= "ORDER BY MAX(`features`.`name`), `events`.`time`, `events`.`user` DESC;";
 }
 
 if (isset($debug) && $debug == true)
@@ -85,7 +95,7 @@ while ($row = $recordset->fetchRow()) {
 $recordset->free();
 $db->disconnect();
 
-// View
+// Print View
 print_header();
 
 print <<< HTML
