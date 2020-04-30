@@ -33,7 +33,7 @@ function print_footer() {
 }
 
 function print_sql ($sql) {
-	print "<span class='red-text'>Executing SQL: </span> <span style='color: blue;'>" . $sql . "</span><br>\n";
+	print "<p><span class='red-text'>Executing SQL:</span><br /><code style='color: blue;'>" . nl2br($sql) . "</code></p>\n";
 }
 
 ?>
